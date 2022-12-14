@@ -2,9 +2,8 @@ const router = require("express").Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
-const validInfo = require("../middleware/validInfo")
-const authorization = require("../middleware/authorization")
-
+const validInfo = require("../middleware/validInfo");
+const authorization = require("../middleware/authorization");
 
 // register route
 router.post("/register", validInfo, async (req, res) => {
@@ -41,8 +40,7 @@ router.post("/register", validInfo, async (req, res) => {
 
     const token = jwtGenerator(newUser.rows[0].user_id);
 
-    res.json({token});
-
+    res.json({ token });
   } catch (err) {
     console.error(err.message);
     res.status(500).send("server error");
@@ -51,46 +49,47 @@ router.post("/register", validInfo, async (req, res) => {
 
 // login route
 router.post("/login", validInfo, async (req, res) => {
-    try {
-        //1. destructure the req.body
-        
-        const {email, password} = req.body;
+  try {
+    //1. destructure the req.body
 
-        //2. check if user doesn't exist (if not then throw error)
-        
-        const user = await pool.query("SELECT * FROM users WHERE user_email = $1",[
-            email
-        ]);
+    const { email, password } = req.body;
 
-        if (user.rows.length === 0) {
-            return res.status(401).json("Password or Email is incorect");
-        }
-        //3. check if incoming password is the same to the database user_password
+    //2. check if user doesn't exist (if not then throw error)
 
-        const validPassword = await bcrypt.compare(password, user.rows[0].user_password);
+    const user = await pool.query("SELECT * FROM users WHERE user_email = $1", [
+      email,
+    ]);
 
-        if (!validPassword) {
-            return res.status(401).json("Password or Email is incorect")
-        }
-
-        //4. wrap it up in jwtToken
-
-        const token = jwtGenerator(user.rows[0].user_id);
-        res.json({token});
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("server error");
+    if (user.rows.length === 0) {
+      return res.status(401).json("Password or Email is incorect");
     }
-})
+    //3. check if incoming password is the same to the database user_password
 
-router.get("/is-verify", authorization, async (req, res) =>{
+    const validPassword = await bcrypt.compare(
+      password,
+      user.rows[0].user_password
+    );
+
+    if (!validPassword) {
+      return res.status(401).json("Password or Email is incorect");
+    }
+
+    //4. wrap it up in jwtToken
+
+    const token = jwtGenerator(user.rows[0].user_id);
+    res.json({ token });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("server error");
+  }
+});
+
+router.get("/is-verify", authorization, async (req, res) => {
   try {
     res.json(true);
   } catch (err) {
     console.error(err.message);
   }
-})
-
+});
 
 module.exports = router;

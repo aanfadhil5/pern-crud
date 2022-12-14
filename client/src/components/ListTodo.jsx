@@ -37,7 +37,7 @@ const ListTodo = () => {
   }, []);
   return (
     <Fragment>
-      <table class="table mt-5 text-center">
+      <table className="table mt-5 text-center">
         <thead>
           <tr>
             <th>Description</th>
@@ -57,7 +57,7 @@ const ListTodo = () => {
             <tr key={todo.todo_id}>
               <td>{todo.description}</td>
               <td>
-                <EditTodo todo = {todo}/>
+                <EditTodo todo={todo} />
               </td>
               <td>
                 <button
